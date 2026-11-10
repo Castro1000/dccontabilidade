@@ -65,7 +65,7 @@ a { color: inherit; }
 .marca-texto strong { font-family: var(--serif); color: var(--areia); font-size: .82rem; letter-spacing: .04em; }
 .marca-texto small { font-family: var(--sans); color: var(--ouro); font-size: .68rem; letter-spacing: .45em; text-transform: uppercase; }
 
-.menu { display: flex; align-items: center; gap: 2.6rem; }
+.menu { display: flex; align-items: center; gap: 3.6rem; }
 .menu a:not(.btn) { color: var(--areia); text-decoration: none; font-size: .92rem; font-weight: 500; position: relative; }
 .menu a:not(.btn)::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 0; height: 10px; background: var(--ouro); transition: width .25s; }
 .menu a:not(.btn):hover::after { width: 100%; }
