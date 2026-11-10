@@ -41,6 +41,23 @@ form.addEventListener('submit', (e) => {
 // Ano no rodapé
 document.getElementById('ano').textContent = new Date().getFullYear();
 
+// Barra de progresso de rolagem
+const barraProgresso = document.getElementById('progresso-barra');
+let progressoPendente = false;
+function atualizarProgresso() {
+  const alturaTotal = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const progresso = alturaTotal > 0 ? (window.scrollY / alturaTotal) * 100 : 0;
+  barraProgresso.style.width = progresso + '%';
+  progressoPendente = false;
+}
+window.addEventListener('scroll', () => {
+  if (!progressoPendente) {
+    progressoPendente = true;
+    requestAnimationFrame(atualizarProgresso);
+  }
+}, { passive: true });
+atualizarProgresso();
+
 // Animação ao rolar
 const alvos = document.querySelectorAll('.card, .dif, .publico li, .sobre-foto, .sobre-texto, .faq details, .form, .contato-info');
 if ('IntersectionObserver' in window) {
