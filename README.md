@@ -37,6 +37,9 @@ Por isso o DNS fica no Cloudflare (gratuito), que suporta CNAME flattening na ra
 
 ## Trocar depois
 - Foto: substituir `public/img/daniel4.jpeg` (quadrada, ~800x800).
+- Fotos dos cards de serviço (`public/img/servico-*.jpg`): baixadas do Pexels
+  (Pexels License — uso comercial livre, sem atribuição obrigatória). São
+  genéricas; trocar por fotos reais do escritório quando o cliente tiver.
 - WhatsApp: número `5592984565478` aparece no index.html e no script.js.
 - Domínio: se não for dccontabilidade.com.br, troque em index.html (canonical,
   og:url, og:image, JSON-LD), robots.txt e sitemap.xml.
