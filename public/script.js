@@ -58,6 +58,28 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 atualizarProgresso();
 
+// Contadores animados
+const contadores = document.querySelectorAll('.numero');
+if (contadores.length && 'IntersectionObserver' in window) {
+  const obsContador = new IntersectionObserver((entradas) => {
+    entradas.forEach(ent => {
+      if (!ent.isIntersecting) return;
+      const el = ent.target;
+      const alvo = parseInt(el.dataset.alvo, 10);
+      const duracao = 1400;
+      const inicio = performance.now();
+      (function passo(agora) {
+        const progresso = Math.min((agora - inicio) / duracao, 1);
+        el.textContent = Math.floor(progresso * alvo);
+        if (progresso < 1) requestAnimationFrame(passo);
+        else el.textContent = alvo;
+      })(inicio);
+      obsContador.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  contadores.forEach(el => obsContador.observe(el));
+}
+
 // Animação ao rolar
 const alvos = document.querySelectorAll('.card, .dif, .publico li, .sobre-foto, .sobre-texto, .faq details, .form, .contato-info');
 if ('IntersectionObserver' in window) {
