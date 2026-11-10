@@ -31,7 +31,7 @@ form.addEventListener('submit', (e) => {
     'Olá! Vim pelo site da DC Contabilidade.',
     `*Nome:* ${nome}`,
     form.cidade.value.trim() && `*Cidade:* ${form.cidade.value.trim()}`,
-    `*Serviço:* ${form.servico.value}`,
+    form.servico.value && `*Serviço:* ${form.servico.value}`,
     form.mensagem.value.trim() && `*Mensagem:* ${form.mensagem.value.trim()}`,
   ].filter(Boolean);
 
