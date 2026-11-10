@@ -94,6 +94,7 @@ a { color: inherit; }
 .secao-escura { background: var(--marrom-900); color: var(--creme); }
 .secao-topo { text-align: center; max-width: 680px; margin: 0 auto 3rem; }
 .sobretitulo { display: block; color: var(--ouro); font-size: .78rem; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; margin-bottom: .7rem; }
+.sobretitulo-grande { font-size: 1.15rem; letter-spacing: .34em; margin-bottom: 1.1rem; }
 .secao h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(1.6rem, 3vw, 2.3rem); line-height: 1.25; color: var(--marrom-800); }
 .secao-escura h2 { color: var(--creme); }
 .secao-topo p { margin-top: 1rem; color: var(--texto-suave); }
@@ -148,9 +149,19 @@ a { color: inherit; }
 .numero-sufixo { font-size: 1.8rem; }
 .numero-item small { margin-top: .5rem; color: #d9c7b0; font-size: .88rem; }
 
-/* Público */
-.publico { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; max-width: 900px; margin: 0 auto; }
-.publico li { padding: .7rem 1.4rem; border-radius: 999px; background: #fff; border: 1px solid var(--areia); color: var(--marrom-800); font-weight: 600; font-size: .92rem; box-shadow: 0 3px 10px rgba(52, 26, 12, .05); }
+/* Público — esteira contínua */
+.publico-esteira {
+  overflow: hidden; width: 100%; margin-top: 1rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.publico { list-style: none; display: flex; flex-wrap: nowrap; width: max-content; gap: .8rem; animation: esteira 26s linear infinite; }
+.publico-esteira:hover .publico { animation-play-state: paused; }
+.publico li { flex: none; white-space: nowrap; padding: .7rem 1.4rem; border-radius: 999px; background: #fff; border: 1px solid var(--areia); color: var(--marrom-800); font-weight: 600; font-size: .92rem; box-shadow: 0 3px 10px rgba(52, 26, 12, .05); }
+@keyframes esteira { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .publico { animation: none; }
+}
 
 /* Sobre */
 .sobre { display: grid; grid-template-columns: .85fr 1.15fr; gap: 4rem; align-items: center; }
