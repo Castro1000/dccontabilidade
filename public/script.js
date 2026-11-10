@@ -1,3 +1,11 @@
+// Header transparente no topo, sólido ao rolar
+const topo = document.getElementById('topo');
+function atualizarTopo() {
+  topo.classList.toggle('topo-rolado', window.scrollY > 40);
+}
+window.addEventListener('scroll', atualizarTopo, { passive: true });
+atualizarTopo();
+
 // Menu mobile
 const menuBtn = document.querySelector('.menu-btn');
 const menu = document.getElementById('menu');
