@@ -1,0 +1,13 @@
+{
+  "name": "dc-contabilidade",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site institucional da DC Consultoria e Assessoria Contábil (Borba-AM)",
+  "scripts": {
+    "start": "serve public -l tcp://0.0.0.0:${PORT:-3000} --no-clipboard"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  },
+  "engines": { "node": ">=18" }
+}
