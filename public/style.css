@@ -280,7 +280,7 @@ a { color: inherit; }
   .hero-foto img { width: 95%; height: auto; max-width: none; margin-top: 30%; }
   .hero-inner {
     display: block; position: relative; z-index: 1; text-align: center; min-height: calc(100vh - 38vh);
-    margin-top: 38vh; padding: 2rem 0 1.6rem;
+    margin-top: 38vh; padding: 0rem 0 1.0rem;
   }
   .hero-inner::before {
     content: ""; position: absolute; z-index: -1; top: 0; left: 50%; width: 100vw; height: 100%;
