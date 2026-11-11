@@ -62,7 +62,7 @@ a { color: inherit; }
 .marca { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
 .marca img { width: 74px; height: auto; }
 .marca-texto { display: flex; flex-direction: column; line-height: 1.1; }
-.marca-texto strong { font-family: var(--sans); font-weight: 700; color: var(--areia); font-size: .72rem; letter-spacing: .03em; }
+.marca-texto strong { font-family: var(--sans); font-weight: 700; color: var(--areia); font-size: .80rem; letter-spacing: .03em; }
 .marca-texto small { font-family: var(--sans); color: var(--ouro); font-size: .68rem; letter-spacing: .45em; text-transform: uppercase; }
 
 .menu { display: flex; align-items: center; gap: 4.6rem; }
