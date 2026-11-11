@@ -50,7 +50,7 @@ a { color: inherit; }
 
 /* ---------- Topo ---------- */
 .topo {
-  position: fixed; top: 32px; left: 0; right: 0; z-index: 50;
+  position: fixed; top: 22px; left: 0; right: 0; z-index: 50;
   background: transparent; border-bottom: 1px solid transparent;
   transition: background .3s, border-color .3s, backdrop-filter .3s;
 }
@@ -92,8 +92,8 @@ a { color: inherit; }
   color: #d9c7b0; font-size: .95rem; font-weight: 500;
 }
 .hero-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--ouro); flex: none; box-shadow: 0 0 8px rgba(210, 164, 71, .8); }
-.hero-foto { position: absolute; z-index: 1; right: 9%; bottom: -30px; top: -90px; display: flex; align-items: flex-end; pointer-events: none; }
-.hero-foto img { display: block; height: 100%; width: auto; max-width: none; }
+.hero-foto { position: absolute; z-index: 1; right: 0%; bottom: -10px; top: -50px; display: flex; align-items: flex-end; pointer-events: none; }
+.hero-foto img { display: block; height: 80%; width: auto; max-width: none; }
 
 /* ---------- Seções ---------- */
 .secao { padding: 5.5rem 0; }
