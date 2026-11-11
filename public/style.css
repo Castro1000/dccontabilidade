@@ -92,7 +92,7 @@ a { color: inherit; }
   color: #d9c7b0; font-size: .95rem; font-weight: 500;
 }
 .hero-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--ouro); flex: none; box-shadow: 0 0 8px rgba(210, 164, 71, .8); }
-.hero-foto { position: absolute; z-index: 1; right: 0%; bottom: -10px; top: -100px; display: flex; align-items: flex-end; pointer-events: none; }
+.hero-foto { position: absolute; z-index: 1; right: 0%; bottom: -10px; top: -150px; display: flex; align-items: flex-end; pointer-events: none; }
 .hero-foto img { display: block; height: 80%; width: auto; max-width: none; }
 
 /* ---------- Seções ---------- */
