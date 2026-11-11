@@ -57,6 +57,7 @@ a { color: inherit; }
 .topo.topo-rolado {
   background: rgba(70, 36, 15, .97); backdrop-filter: blur(8px);
   border-bottom-color: rgba(233, 199, 122, .15);
+  box-shadow: 0 -22px 0 0 rgba(70, 36, 15, .97);
 }
 .topo-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
 .marca { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
@@ -93,7 +94,21 @@ a { color: inherit; }
 }
 .hero-badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--ouro); flex: none; box-shadow: 0 0 8px rgba(210, 164, 71, .8); }
 .hero-foto { position: absolute; z-index: 1; right: 0%; bottom: -10px; top: -50px; display: flex; align-items: flex-end; pointer-events: none; }
+.hero-foto::before {
+  content: ""; position: absolute; z-index: -1; inset: -10% 10% -6% -70%;
+  background: radial-gradient(ellipse 55% 60% at 75% 48%, rgba(233, 199, 126, .42), transparent 72%);
+  filter: blur(60px);
+}
 .hero-foto img { display: block; height: 80%; width: auto; max-width: none; }
+
+@media (max-width: 1500px) {
+  .hero-foto { right: -2%; }
+  .hero-foto img { height: 68%; }
+}
+@media (max-width: 1150px) and (min-width: 981px) {
+  .hero-foto { right: -4%; }
+  .hero-foto img { height: 58%; }
+}
 
 /* ---------- Seções ---------- */
 .secao { padding: 5.5rem 0; }
@@ -262,7 +277,7 @@ a { color: inherit; }
     height: 50vh; width: 100%; margin: 0; overflow: hidden;
     display: flex; align-items: flex-start; justify-content: center;
   }
-  .hero-foto img { width: 105%; height: auto; max-width: none; margin-top: -32px; transform: translateX(-9%); }
+  .hero-foto img { width: 82%; height: auto; max-width: none; margin-top: 3%; }
   .hero-inner {
     display: block; position: relative; z-index: 1; text-align: center; min-height: calc(100vh - 38vh);
     margin-top: 38vh; padding: 2rem 0 1.6rem;
