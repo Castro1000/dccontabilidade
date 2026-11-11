@@ -277,7 +277,7 @@ a { color: inherit; }
     height: 50vh; width: 100%; margin: 0; overflow: hidden;
     display: flex; align-items: flex-start; justify-content: center;
   }
-  .hero-foto img { width: 82%; height: auto; max-width: none; margin-top: 3%; }
+  .hero-foto img { width: 95%; height: auto; max-width: none; margin-top: 30%; }
   .hero-inner {
     display: block; position: relative; z-index: 1; text-align: center; min-height: calc(100vh - 38vh);
     margin-top: 38vh; padding: 2rem 0 1.6rem;
