@@ -50,7 +50,7 @@ a { color: inherit; }
 
 /* ---------- Topo ---------- */
 .topo {
-  position: fixed; top: 17px; left: 0; right: 0; z-index: 50;
+  position: fixed; top: 32px; left: 0; right: 0; z-index: 50;
   background: transparent; border-bottom: 1px solid transparent;
   transition: background .3s, border-color .3s, backdrop-filter .3s;
 }
@@ -62,7 +62,7 @@ a { color: inherit; }
 .marca { display: flex; align-items: center; gap: .7rem; text-decoration: none; }
 .marca img { width: 74px; height: auto; }
 .marca-texto { display: flex; flex-direction: column; line-height: 1.1; }
-.marca-texto strong { font-family: var(--serif); color: var(--areia); font-size: .82rem; letter-spacing: .04em; }
+.marca-texto strong { font-family: var(--sans); font-weight: 700; color: var(--areia); font-size: .72rem; letter-spacing: .03em; }
 .marca-texto small { font-family: var(--sans); color: var(--ouro); font-size: .68rem; letter-spacing: .45em; text-transform: uppercase; }
 
 .menu { display: flex; align-items: center; gap: 4.6rem; }
@@ -136,7 +136,6 @@ a { color: inherit; }
 .card-capa { aspect-ratio: 1; overflow: hidden; }
 .card-capa img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  filter: grayscale(1) contrast(1.08) brightness(.92);
   transition: transform .45s;
 }
 .card:hover .card-capa img { transform: scale(1.07); }
