@@ -22,7 +22,7 @@ menu.querySelectorAll('a').forEach(link =>
 );
 
 // Formulário -> WhatsApp
-const WHATS = '5592984565478';
+const WHATS = '5592988226908';
 const form = document.getElementById('form-whats');
 
 form.addEventListener('submit', (e) => {
