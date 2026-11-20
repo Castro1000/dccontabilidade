@@ -195,7 +195,7 @@
       const mei = el('div', 'sim-bloco');
       mei.append(el('span', 'sim-rotulo', 'MEI'));
       if (cabe) {
-        mei.append(el('strong', 'sim-valor', reais(dasMEI(ativ === 'servicos', ativ !== 'servicos', false)) + '/mês'));
+        mei.append(el('strong', 'sim-valor', reais(dasMEI(ativ === 'servicos' || ativ === 'comercio_servicos', ativ !== 'servicos', false)) + '/mês'));
         mei.append(el('small', null, anual > LIMITE_MEI * 0.9
           ? '⚠ Perto do limite de R$ 81 mil/ano'
           : 'Valor fixo do DAS em 2026, se sua atividade for permitida no MEI'));
