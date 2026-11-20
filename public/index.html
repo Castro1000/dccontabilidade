@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css?v=55">
+  <link rel="stylesheet" href="/style.css?v=56">
 
   <script type="application/ld+json">
   {
@@ -116,6 +116,7 @@
 
     <nav id="menu" class="menu">
       <a href="#servicos">Serviços</a>
+      <a href="#ferramentas">Consultar CNPJ</a>
       <a href="#sobre">Quem somos</a>
       <a href="#duvidas">Dúvidas</a>
       <a href="#contato">Contato</a>
@@ -308,6 +309,44 @@
     </div>
   </section>
 
+  <!-- FERRAMENTAS GRÁTIS -->
+  <section class="secao secao-escura" id="ferramentas">
+    <div class="container">
+      <header class="secao-topo">
+        <span class="sobretitulo">Ferramentas grátis</span>
+        <h2>Consulte sua empresa e fique de olho nos prazos</h2>
+        <p>Veja a situação do seu CNPJ na Receita e os próximos vencimentos de impostos, sem cadastro.</p>
+      </header>
+
+      <div class="ferramentas">
+        <div class="ferramenta">
+          <h3>Consulta de CNPJ</h3>
+          <p class="ferramenta-sub">Situação cadastral, regime, atividade e tempo de empresa.</p>
+          <form class="cnpj-form" id="form-cnpj" novalidate>
+            <label class="cnpj-rotulo" for="cnpj-campo">CNPJ</label>
+            <div class="cnpj-linha">
+              <input id="cnpj-campo" type="text" placeholder="00.000.000/0000-00" maxlength="18" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="cnpj-msg">
+              <button type="submit" class="btn btn-marrom">Consultar</button>
+            </div>
+            <p class="cnpj-msg" id="cnpj-msg" role="alert"></p>
+          </form>
+          <div class="cnpj-resultado" id="cnpj-resultado" aria-live="polite"></div>
+          <p class="ferramenta-nota">Dados públicos da Receita Federal, via BrasilAPI. Não guardamos nada do que você consulta.</p>
+        </div>
+
+        <div class="ferramenta">
+          <h3>Próximos vencimentos</h3>
+          <p class="ferramenta-sub">Datas já ajustadas para fins de semana e feriados nacionais.</p>
+          <ol class="prazos" id="prazos-lista">
+            <li class="prazo"><div class="prazo-info"><strong>DAS – MEI e Simples Nacional</strong><small>Todo dia 20 (próximo dia útil, se cair em feriado)</small></div></li>
+          </ol>
+          <a href="https://wa.me/5592988226908?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20quero%20que%20a%20DC%20cuide%20dos%20meus%20prazos." class="btn btn-ouro btn-bloco prazos-btn" target="_blank" rel="noopener">Quero que a DC cuide dos meus prazos</a>
+          <p class="ferramenta-nota">Datas de referência. Feriados estaduais e municipais e casos específicos podem mudar o prazo; confirme com a DC.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- SOBRE -->
   <section class="secao secao-areia" id="sobre">
     <div class="container sobre">
@@ -434,6 +473,7 @@
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.4.8 3.2.7a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>
 </a>
 
-<script src="/script.js?v=8" defer></script>
+<script src="/script.js?v=9" defer></script>
+<script src="/ferramentas.js?v=1" defer></script>
 </body>
 </html>

@@ -91,7 +91,7 @@ if (contadores.length && 'IntersectionObserver' in window) {
 }
 
 // Animação ao rolar
-const alvos = document.querySelectorAll('.card, .passo, .dif, .sobre-foto, .sobre-texto, .faq details, .form, .contato-info');
+const alvos = document.querySelectorAll('.card, .passo, .dif, .ferramenta, .sobre-foto, .sobre-texto, .faq details, .form, .contato-info');
 if ('IntersectionObserver' in window) {
   alvos.forEach(el => el.classList.add('revelar'));
   const obs = new IntersectionObserver((entradas) => {

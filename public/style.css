@@ -66,7 +66,7 @@ a { color: inherit; }
 .marca-texto strong { font-family: var(--sans); font-weight: 700; color: var(--areia); font-size: .80rem; letter-spacing: .03em; }
 .marca-texto small { font-family: var(--sans); color: var(--ouro); font-size: .68rem; letter-spacing: .45em; text-transform: uppercase; }
 
-.menu { display: flex; align-items: center; gap: 4.6rem; }
+.menu { display: flex; align-items: center; gap: clamp(1.4rem, 3.2vw, 4.6rem); }
 .menu a:not(.btn) { color: var(--areia); text-decoration: none; font-size: .92rem; font-weight: 500; position: relative; }
 .menu a:not(.btn)::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 0; height: 10px; background: var(--ouro); transition: width .25s; }
 .menu a:not(.btn):hover::after { width: 100%; }
@@ -225,6 +225,61 @@ a { color: inherit; }
 .publico-esteira:hover .publico { animation-play-state: paused; }
 .publico li { flex: none; white-space: nowrap; padding: .7rem 1.4rem; border-radius: 999px; background: #fff; border: 1px solid var(--areia); color: var(--marrom-800); font-weight: 600; font-size: .92rem; box-shadow: 0 3px 10px rgba(52, 26, 12, .05); }
 @keyframes esteira { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Ferramentas grátis */
+.ferramentas { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; max-width: 1100px; margin: 0 auto; }
+.ferramenta { background: var(--creme); color: var(--texto); border-radius: var(--raio); padding: 2rem; box-shadow: 0 20px 50px rgba(0, 0, 0, .3); }
+.ferramenta h3 { font-family: var(--serif); font-size: 1.35rem; color: var(--marrom-800); }
+.ferramenta-sub { color: var(--texto-suave); font-size: .9rem; margin: .3rem 0 1.4rem; }
+.ferramenta-nota { color: var(--texto-suave); font-size: .74rem; margin-top: 1.2rem; line-height: 1.5; }
+
+.cnpj-rotulo { display: block; font-size: .85rem; font-weight: 600; color: var(--marrom-800); margin-bottom: .4rem; }
+.cnpj-linha { display: flex; gap: .6rem; }
+.cnpj-linha input {
+  flex: 1; min-width: 0; padding: .8rem 1rem; font: inherit; font-weight: 500; letter-spacing: .04em;
+  border: 1px solid #d8c8b3; border-radius: 10px; background: #fff; color: var(--texto); transition: border-color .2s, box-shadow .2s;
+}
+.cnpj-linha input:focus { outline: none; border-color: var(--ouro); box-shadow: 0 0 0 3px rgba(210, 164, 71, .25); }
+.cnpj-linha input.erro { border-color: #b3261e; }
+.cnpj-linha .btn { flex: none; }
+.cnpj-linha .btn:disabled { opacity: .7; cursor: wait; transform: none; }
+.cnpj-msg { min-height: 1.2em; margin-top: .5rem; font-size: .82rem; color: #9b231b; }
+
+.cnpj-resultado:empty { display: none; }
+.cnpj-resultado { margin-top: .6rem; padding: 1.3rem; background: #fff; border-radius: 12px; border: 1px solid var(--areia); }
+.selo-situacao { display: inline-block; padding: .2rem .75rem; border-radius: 999px; font-size: .7rem; font-weight: 700; letter-spacing: .1em; }
+.selo-ok { background: #e2efdf; color: #2c6527; }
+.selo-alerta { background: #f8e1df; color: #9b231b; }
+.cnpj-nome { margin-top: .6rem; font-weight: 700; color: var(--marrom-800); line-height: 1.3; }
+.cnpj-fantasia { font-size: .85rem; color: var(--texto-suave); }
+.cnpj-dados { display: grid; grid-template-columns: auto 1fr; gap: .45rem 1rem; margin-top: 1rem; font-size: .85rem; }
+.cnpj-dados dt { color: var(--texto-suave); font-weight: 600; }
+.cnpj-dados dd { color: var(--texto); min-width: 0; overflow-wrap: anywhere; }
+.cnpj-cta { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--areia); font-size: .88rem; color: var(--texto-suave); }
+.cnpj-cta p { margin-bottom: .7rem; }
+.cnpj-cta-alerta p { color: #9b231b; font-weight: 500; }
+
+.prazos { list-style: none; display: grid; gap: .6rem; }
+.prazo { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: #fff; border-radius: 12px; border-left: 3px solid var(--areia); }
+.prazo.urgente { border-left-color: var(--ouro); background: #fffaf0; }
+.prazo-data { flex: none; width: 46px; text-align: center; line-height: 1.05; }
+.prazo-dia { display: block; font-family: var(--serif); font-size: 1.45rem; font-weight: 700; color: var(--marrom-800); }
+.prazo-mes { display: block; font-size: .68rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-suave); }
+.prazo-info { flex: 1; min-width: 0; }
+.prazo-info strong { display: block; font-size: .88rem; color: var(--marrom-800); line-height: 1.3; }
+.prazo-info small { font-size: .76rem; color: var(--texto-suave); }
+.prazo-falta { flex: none; font-size: .74rem; font-weight: 700; color: var(--texto-suave); text-align: right; }
+.urgente .prazo-falta { color: #8a5300; }
+.prazos-btn { margin-top: 1.3rem; text-align: center; }
+
+@media (max-width: 980px) {
+  .ferramentas { grid-template-columns: 1fr; max-width: 620px; }
+}
+@media (max-width: 560px) {
+  .ferramenta { padding: 1.5rem 1.2rem; }
+  .cnpj-linha { flex-direction: column; }
+  .prazo { gap: .75rem; padding: .7rem .8rem; }
+}
 
 /* Sobre */
 .sobre { display: grid; grid-template-columns: .85fr 1.15fr; gap: 4rem; align-items: center; }
