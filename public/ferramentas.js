@@ -168,26 +168,12 @@
   const LIMITE_SIMPLES = 4800000;
 
   const reais = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  const pct = (v) => (v * 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
 
   function dasMEI(iss, icms, caminhoneiro) {
     return SALARIO_MINIMO * (caminhoneiro ? 0.12 : 0.05) + (icms ? 1 : 0) + (iss ? 5 : 0);
   }
 
   /* ================= SIMULADOR MEI x SIMPLES ================= */
-
-  // Tabelas do Simples Nacional (LC 123/2006, com redação da LC 155/2016): [teto RBT12, alíquota, parcela a deduzir]
-  const ANEXOS = {
-    comercio: { nome: 'Anexo I – Comércio', faixas: [[180000, .04, 0], [360000, .073, 5940], [720000, .095, 13860], [1800000, .107, 22500], [3600000, .143, 87300], [4800000, .19, 378000]] },
-    industria: { nome: 'Anexo II – Indústria', faixas: [[180000, .045, 0], [360000, .078, 5940], [720000, .10, 13860], [1800000, .112, 22500], [3600000, .147, 85500], [4800000, .30, 720000]] },
-    servicos: { nome: 'Anexo III – Serviços', faixas: [[180000, .06, 0], [360000, .112, 9360], [720000, .135, 17640], [1800000, .16, 35640], [3600000, .21, 125640], [4800000, .33, 648000]] },
-  };
-
-  function aliquotaEfetiva(anexo, rbt12) {
-    const f = ANEXOS[anexo].faixas.find((x) => rbt12 <= x[0]);
-    if (!f) return null;
-    return (rbt12 * f[1] - f[2]) / rbt12;
-  }
 
   const formSim = document.getElementById('form-simulador');
   if (formSim) {
@@ -203,51 +189,41 @@
       const anual = mensal * 12;
 
       const blocos = el('div', 'sim-blocos');
+      const cabe = anual <= LIMITE_MEI;
 
-      // MEI
+      // MEI — só valores oficiais (DAS fixo de 2026 e limite anual)
       const mei = el('div', 'sim-bloco');
       mei.append(el('span', 'sim-rotulo', 'MEI'));
-      let dasM = null;
-      if (anual <= LIMITE_MEI) {
-        dasM = dasMEI(ativ === 'servicos', ativ !== 'servicos', false);
-        mei.append(el('strong', 'sim-valor', reais(dasM) + '/mês'));
-        mei.append(el('small', null, anual > LIMITE_MEI * 0.9 ? '⚠ Perto do limite de R$ 81 mil/ano' : 'Valor fixo, independe do faturamento'));
+      if (cabe) {
+        mei.append(el('strong', 'sim-valor', reais(dasMEI(ativ === 'servicos', ativ !== 'servicos', false)) + '/mês'));
+        mei.append(el('small', null, anual > LIMITE_MEI * 0.9
+          ? '⚠ Perto do limite de R$ 81 mil/ano'
+          : 'Valor fixo do DAS em 2026, se sua atividade for permitida no MEI'));
       } else {
         mei.classList.add('sim-fora');
-        mei.append(el('strong', 'sim-valor', 'Não se enquadra'));
-        mei.append(el('small', null, `Faturamento anual de ${reais(anual)} passa do limite de R$ 81 mil`));
+        mei.append(el('strong', 'sim-valor', 'Acima do limite'));
+        mei.append(el('small', null, `${reais(anual)}/ano passa do limite de R$ 81 mil do MEI`));
       }
 
-      // Simples Nacional
-      const sn = el('div', 'sim-bloco');
-      sn.append(el('span', 'sim-rotulo', 'Simples Nacional'));
-      let dasS = null;
-      const ef = anual <= LIMITE_SIMPLES ? aliquotaEfetiva(ativ, anual) : null;
-      if (ef != null) {
-        dasS = mensal * ef;
-        sn.append(el('strong', 'sim-valor', reais(dasS) + '/mês'));
-        sn.append(el('small', null, `Alíquota efetiva de ${pct(ef)} · ${ANEXOS[ativ].nome}`));
-      } else {
-        sn.classList.add('sim-fora');
-        sn.append(el('strong', 'sim-valor', 'Não se enquadra'));
-        sn.append(el('small', null, 'Acima de R$ 4,8 milhões/ano: Lucro Presumido ou Real'));
-      }
+      // Simples / outros regimes — o valor depende do enquadramento: a DC calcula
+      const sn = el('div', 'sim-bloco sim-personalizado');
+      sn.append(el('span', 'sim-rotulo', anual <= LIMITE_SIMPLES ? 'Simples Nacional' : 'Lucro Presumido ou Real'));
+      sn.append(el('strong', 'sim-valor', 'Cálculo personalizado'));
+      sn.append(el('small', null, 'O imposto depende do enquadramento da sua atividade'));
       blocos.append(mei, sn);
       saida.append(blocos);
 
-      if (dasM != null && dasS != null && dasS > dasM) {
-        saida.append(el('p', 'sim-destaque', `No MEI você economizaria cerca de ${reais((dasS - dasM) * 12)} por ano.`));
-      }
-      if (ativ === 'servicos' && dasS != null) {
-        saida.append(el('p', 'sim-obs', 'Alguns serviços (profissões intelectuais, por exemplo) podem cair no Anexo V, conforme a folha de pagamento (Fator R). A DC calcula o seu caso.'));
-      }
-
-      const nomeAtiv = campoAtiv.options[campoAtiv.selectedIndex].text;
-      const a = el('a', 'btn btn-marrom btn-sm sim-cta', 'Quero um cálculo exato');
-      a.href = linkWhats(`Olá! Fiz a simulação no site: faturamento de ${reais(mensal)}/mês, atividade de ${nomeAtiv.toLowerCase()}. Quero um cálculo exato para o meu caso.`);
+      const nomeAtiv = campoAtiv.options[campoAtiv.selectedIndex].text.toLowerCase();
+      const cta = el('div', 'sim-destaque');
+      cta.append(el('p', null, cabe
+        ? 'Confirme com a DC se sua atividade pode ser MEI e compare com o Simples Nacional. É grátis.'
+        : 'A DC calcula quanto você pagaria e qual regime sai mais barato para o seu negócio. É grátis.'));
+      const a = el('a', 'btn btn-ouro btn-sm', 'Receber o cálculo exato');
+      a.href = linkWhats(`Olá! Fiz a simulação no site: faturamento de ${reais(mensal)}/mês, atividade de ${nomeAtiv}. Quero o cálculo exato do meu imposto.`);
       a.target = '_blank';
       a.rel = 'noopener';
-      saida.append(a);
+      cta.append(a);
+      saida.append(cta);
     };
 
     campoFat.addEventListener('input', () => {
