@@ -271,6 +271,44 @@ a { color: inherit; }
 .prazo-falta { flex: none; font-size: .74rem; font-weight: 700; color: var(--texto-suave); text-align: right; }
 .urgente .prazo-falta { color: #8a5300; }
 .prazos-btn { margin-top: 1.3rem; text-align: center; }
+/* Simulador (card largo: formulário à esquerda, resultado à direita) */
+.ferramenta-larga { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); column-gap: 2.5rem; align-items: start; }
+.ferramenta-larga > * { grid-column: 1; }
+.ferramenta-larga .sim-resultado { grid-column: 2; grid-row: 1 / span 4; margin-top: 0; }
+.ferramenta-larga .sim-resultado:empty {
+  display: grid; place-items: center; min-height: 100%; padding: 2rem; border: 1px dashed #d8c8b3; border-radius: 12px;
+  color: var(--texto-suave); font-size: .9rem; text-align: center;
+}
+.ferramenta-larga .sim-resultado:empty::before { content: "Digite seu faturamento para ver a comparação entre MEI e Simples Nacional."; }
+@media (max-width: 980px) {
+  .ferramenta-larga { display: block; }
+  .ferramenta-larga .sim-resultado { margin-top: 1.2rem; }
+  .ferramenta-larga .sim-resultado:empty { display: none; }
+}
+
+.sim-campos { display: grid; grid-template-columns: 1.3fr 1fr; gap: .8rem; }
+.sim-campos select, .campo-reais {
+  display: flex; align-items: center; width: 100%; margin-top: .4rem; font: inherit; font-weight: 500;
+  border: 1px solid #d8c8b3; border-radius: 10px; background: #fff; color: var(--texto);
+  transition: border-color .2s, box-shadow .2s;
+}
+.sim-campos select { padding: .8rem 1rem; }
+.campo-reais span { padding-left: 1rem; color: var(--texto-suave); font-weight: 600; }
+.campo-reais input { flex: 1; min-width: 0; border: 0; background: transparent; padding: .8rem 1rem .8rem .5rem; font: inherit; font-weight: 600; color: var(--texto); }
+.campo-reais input:focus { outline: none; }
+.campo-reais:focus-within, .sim-campos select:focus { outline: none; border-color: var(--ouro); box-shadow: 0 0 0 3px rgba(210, 164, 71, .25); }
+.sim-resultado:empty { display: none; }
+.sim-resultado { margin-top: 1.2rem; }
+.sim-blocos { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.sim-bloco { padding: 1rem; background: #fff; border-radius: 12px; border: 1px solid var(--areia); border-top: 3px solid var(--ouro); }
+.sim-bloco.sim-fora { border-top-color: #d8c8b3; }
+.sim-rotulo { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--texto-suave); }
+.sim-valor { display: block; margin: .3rem 0 .2rem; font-family: var(--serif); font-size: 1.25rem; color: var(--marrom-800); line-height: 1.2; }
+.sim-fora .sim-valor { font-family: var(--sans); font-size: 1rem; color: var(--texto-suave); }
+.sim-bloco small { display: block; font-size: .75rem; color: var(--texto-suave); line-height: 1.4; }
+.sim-destaque { margin-top: .9rem; padding: .7rem 1rem; border-radius: 10px; background: #fffaf0; border: 1px solid #ecd9ae; color: #6b4300; font-weight: 600; font-size: .88rem; }
+.sim-obs { margin-top: .7rem; font-size: .76rem; color: var(--texto-suave); line-height: 1.5; }
+.sim-cta { margin-top: 1rem; }
 
 @media (max-width: 980px) {
   .ferramentas { grid-template-columns: 1fr; max-width: 620px; }
@@ -279,6 +317,7 @@ a { color: inherit; }
   .ferramenta { padding: 1.5rem 1.2rem; }
   .cnpj-linha { flex-direction: column; }
   .prazo { gap: .75rem; padding: .7rem .8rem; }
+  .sim-campos, .sim-blocos { grid-template-columns: 1fr; }
 }
 
 /* Sobre */
