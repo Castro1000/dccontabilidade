@@ -85,11 +85,13 @@ if (contadores.length && 'IntersectionObserver' in window) {
       obsContador.unobserve(el);
     });
   }, { threshold: 0.4 });
-  contadores.forEach(el => obsContador.observe(el));
+  // O HTML já traz o número final; só zeramos aqui, quando a animação vai rodar
+  const semAnimacao = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!semAnimacao) contadores.forEach(el => { el.textContent = '0'; obsContador.observe(el); });
 }
 
 // Animação ao rolar
-const alvos = document.querySelectorAll('.card, .dif, .sobre-foto, .sobre-texto, .faq details, .form, .contato-info');
+const alvos = document.querySelectorAll('.card, .passo, .dif, .sobre-foto, .sobre-texto, .faq details, .form, .contato-info');
 if ('IntersectionObserver' in window) {
   alvos.forEach(el => el.classList.add('revelar'));
   const obs = new IntersectionObserver((entradas) => {
