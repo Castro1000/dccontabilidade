@@ -1,5 +1,5 @@
 // Ferramentas grátis: consulta de CNPJ e calendário de prazos fiscais.
-// Dados via BrasilAPI (https://brasilapi.com.br) — gratuita, sem chave.
+// Dados públicos da Receita via APIs gratuitas (Minha Receita, CNPJá, CNPJ.ws, BrasilAPI).
 // Nada é carregado até o visitante usar/chegar na seção (rede fraca no interior).
 (function () {
   const API = 'https://brasilapi.com.br/api';
@@ -68,28 +68,65 @@
   function regime(d) {
     if (d.opcao_pelo_mei === true) return 'MEI (Simples Nacional)';
     if (d.opcao_pelo_simples === true) return 'Simples Nacional';
-    if (d.opcao_pelo_simples === false) return 'Fora do Simples (Lucro Presumido ou Real)';
+    if (d.opcao_pelo_simples === false) return 'Não optante pelo Simples Nacional';
     return 'Não informado pela Receita';
   }
 
   const titulo = (s) => (s || '').toLowerCase().replace(/(^|\s)\S/g, (l) => l.toUpperCase());
 
+  // Motivo da situação cadastral. A Minha Receita/BrasilAPI mandam em maiúsculas e sem acento
+  // ("OMISSAO DE DECLARACOES"); aqui só recolocamos os acentos para exibir.
+  const ACENTOS = {
+    omissao: 'omissão', declaracoes: 'declarações', extincao: 'extinção', liquidacao: 'liquidação', voluntaria: 'voluntária',
+    incorporacao: 'incorporação', fusao: 'fusão', cisao: 'cisão', falencia: 'falência', inexistencia: 'inexistência',
+    obito: 'óbito', nao: 'não', orgao: 'órgão', inaptidao: 'inaptidão', oficio: 'ofício', pratica: 'prática',
+    comercio: 'comércio', inicio: 'início', unico: 'único', tributario: 'tributário', socios: 'sócios', socio: 'sócio', mei: 'MEI', cnpj: 'CNPJ',
+  };
+  function textoMotivo(d) {
+    const m = (d.descricao_motivo_situacao_cadastral || '').trim();
+    if (!m || /^sem motivo$/i.test(m)) return null;
+    const t = /[a-zà-ú]/.test(m)
+      ? m.toLowerCase()
+      : m.toLowerCase().split(/\s+/).map((w) => ACENTOS[w] || w.replace(/cao$/, 'ção').replace(/coes$/, 'ções').replace(/sao$/, 'são').replace(/dao$/, 'dão').replace(/encia$/, 'ência')).join(' ');
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  const hojeISO = () => new Date().toISOString().slice(0, 10);
+
+  // Histórico de entrada/saída do Simples e do MEI. Só mostra o que a fonte informou com clareza.
+  function historico(atual, entrou, saiu, textos) {
+    if (atual === true && entrou) return `${textos.desde} ${dataBR(entrou)}`;
+    if (saiu && saiu > hojeISO()) return `${textos.sai} ${dataBR(saiu)}`;
+    if (saiu) return `${textos.saiu} ${dataBR(saiu)}` + (entrou && entrou < saiu ? ` (entrou em ${dataBR(entrou)})` : '');
+    return null;
+  }
+
   function mostrarCNPJ(alvo, d) {
     alvo.replaceChildren();
     const situacao = (d.descricao_situacao_cadastral || 'DESCONHECIDA').toUpperCase();
     const ativa = situacao === 'ATIVA';
+    const motivo = ativa ? null : textoMotivo(d);
 
     const topo = el('div', 'cnpj-topo');
     topo.append(el('span', 'selo-situacao ' + (ativa ? 'selo-ok' : 'selo-alerta'), situacao));
+    if (motivo) topo.append(el('p', 'cnpj-motivo', `Motivo: ${motivo}`));
     topo.append(el('p', 'cnpj-nome', d.razao_social || '—'));
     if (d.nome_fantasia) topo.append(el('p', 'cnpj-fantasia', d.nome_fantasia));
     alvo.append(topo);
+
+    const histSimples = historico(d.opcao_pelo_simples, d.data_opcao_pelo_simples, d.data_exclusao_do_simples,
+      { desde: 'Optante desde', saiu: 'Saiu do Simples em', sai: 'Saída do Simples prevista para' });
+    const histMEI = historico(d.opcao_pelo_mei, d.data_opcao_pelo_mei, d.data_exclusao_do_mei,
+      { desde: 'MEI desde', saiu: 'Deixou de ser MEI em', sai: 'Saída do MEI prevista para' });
+    const saiuDoSimples = ativa && d.opcao_pelo_simples !== true && d.data_exclusao_do_simples && d.data_exclusao_do_simples <= hojeISO();
 
     const dl = el('dl', 'cnpj-dados');
     const linha = (rotulo, valor) => { dl.append(el('dt', null, rotulo), el('dd', null, valor)); };
     linha('CNPJ', formatarCNPJ(d.cnpj || ''));
     linha('Abertura', dataBR(d.data_inicio_atividade) + idade(d.data_inicio_atividade));
     linha('Regime', regime(d));
+    if (histSimples) linha('Simples Nacional', histSimples);
+    if (histMEI) linha('MEI', histMEI);
     linha('Atividade', d.cnae_fiscal_descricao ? `${d.cnae_fiscal} – ${d.cnae_fiscal_descricao}` : '—');
     if (d.porte) linha('Porte', titulo(d.porte));
     if (d.municipio) linha('Cidade', `${titulo(d.municipio)} – ${d.uf || ''}`);
@@ -98,16 +135,28 @@
 
     const cta = el('div', 'cnpj-cta');
     const cnpjFmt = formatarCNPJ(d.cnpj || '');
-    if (ativa) {
+    if (saiuDoSimples) {
+      cta.append(el('p', null, `Esta empresa saiu do Simples Nacional em ${dataBR(d.data_exclusao_do_simples)}. Quer saber se vale a pena voltar? A DC avalia grátis.`));
+      const a = el('a', 'btn btn-marrom btn-sm', 'Pedir uma análise grátis');
+      a.href = linkWhats(`Olá! Consultei o CNPJ ${cnpjFmt} no site e vi que a empresa saiu do Simples Nacional em ${dataBR(d.data_exclusao_do_simples)}. Quero saber se vale a pena voltar.`);
+      cta.append(a);
+    } else if (ativa) {
       cta.append(el('p', null, 'Quer saber se está no regime certo e pagando só o necessário?'));
       const a = el('a', 'btn btn-marrom btn-sm', 'Pedir uma análise grátis');
       a.href = linkWhats(`Olá! Consultei o CNPJ ${cnpjFmt} no site e gostaria de uma análise da minha empresa.`);
       cta.append(a);
+    } else if (situacao === 'BAIXADA') {
+      // Empresa encerrada: não há o que regularizar — oferece abrir um novo negócio
+      cta.append(el('p', null, 'Esta empresa foi encerrada. Vai abrir um novo negócio? A DC cuida da abertura.'));
+      const a = el('a', 'btn btn-marrom btn-sm', 'Abrir minha empresa');
+      a.href = linkWhats(`Olá! Consultei o CNPJ ${cnpjFmt} no site (empresa encerrada) e quero abrir uma nova empresa.`);
+      cta.append(a);
     } else {
       cta.classList.add('cnpj-cta-alerta');
-      cta.append(el('p', null, `A empresa consta como ${situacao.toLowerCase()} na Receita. A DC pode ajudar a regularizar.`));
+      const porque = motivo ? ` (${motivo.toLowerCase()})` : '';
+      cta.append(el('p', null, `A empresa consta como ${situacao.toLowerCase()} na Receita${porque}. A DC pode ajudar a regularizar.`));
       const a = el('a', 'btn btn-ouro btn-sm', 'Quero regularizar');
-      a.href = linkWhats(`Olá! Consultei o CNPJ ${cnpjFmt} no site e ele aparece como ${situacao}. Preciso regularizar.`);
+      a.href = linkWhats(`Olá! Consultei o CNPJ ${cnpjFmt} no site e ele aparece como ${situacao}${porque}. Preciso regularizar.`);
       cta.append(a);
     }
     cta.querySelector('a').target = '_blank';
@@ -132,8 +181,12 @@
         data_inicio_atividade: d.founded,
         cnae_fiscal: d.mainActivity && d.mainActivity.id,
         cnae_fiscal_descricao: d.mainActivity && d.mainActivity.text,
+        descricao_motivo_situacao_cadastral: d.reason && d.reason.text,
         opcao_pelo_mei: d.company && d.company.simei ? d.company.simei.optant : null,
         opcao_pelo_simples: d.company && d.company.simples ? d.company.simples.optant : null,
+        // plano grátis do CNPJá não traz o histórico; só a data de entrada de quem é optante hoje
+        data_opcao_pelo_mei: d.company && d.company.simei && d.company.simei.optant ? d.company.simei.since : null,
+        data_opcao_pelo_simples: d.company && d.company.simples && d.company.simples.optant ? d.company.simples.since : null,
         porte: d.company && d.company.size && d.company.size.text,
         municipio: d.address && d.address.city,
         uf: d.address && d.address.state,
@@ -153,8 +206,13 @@
           data_inicio_atividade: e.data_inicio_atividade,
           cnae_fiscal: at.id,
           cnae_fiscal_descricao: at.descricao,
+          descricao_motivo_situacao_cadastral: e.motivo_situacao_cadastral && e.motivo_situacao_cadastral.descricao,
           opcao_pelo_mei: d.simples ? simNao(d.simples.mei) : null,
           opcao_pelo_simples: d.simples ? simNao(d.simples.simples) : null,
+          data_opcao_pelo_mei: d.simples && d.simples.data_opcao_mei,
+          data_exclusao_do_mei: d.simples && d.simples.data_exclusao_mei,
+          data_opcao_pelo_simples: d.simples && d.simples.data_opcao_simples,
+          data_exclusao_do_simples: d.simples && d.simples.data_exclusao_simples,
           porte: d.porte && d.porte.descricao,
           municipio: e.cidade && e.cidade.nome,
           uf: e.estado && e.estado.sigla,
@@ -222,7 +280,7 @@
       try {
         const r = await consultarCNPJ(cnpj);
         if (r.dados) mostrarCNPJ(res, r.dados);
-        else semResposta(res, cnpj, 'Não encontramos esse CNPJ na base da Receita.');
+        else semResposta(res, cnpj, 'Não conseguimos localizar esse CNPJ agora.');
       } catch {
         semResposta(res, cnpj, 'A consulta da Receita está instável agora.');
       } finally {
@@ -235,6 +293,7 @@
   /* ================= VALORES 2026 (atualizar todo ano) ================= */
   // Salário mínimo 2026: R$ 1.621. DAS MEI = 5% do mínimo (INSS) + R$ 1 ICMS e/ou R$ 5 ISS.
   // MEI Transportador Autônomo de Cargas: 12% do mínimo e limite de R$ 251.600/ano.
+  const ANO_VALORES = 2026; // em janeiro: atualizar os valores abaixo e este ano
   const SALARIO_MINIMO = 1621;
   const LIMITE_MEI = 81000;
   const LIMITE_MEI_CAMINHONEIRO = 251600;
@@ -267,11 +326,17 @@
       // MEI — só valores oficiais (DAS fixo de 2026 e limite anual)
       const mei = el('div', 'sim-bloco');
       mei.append(el('span', 'sim-rotulo', 'MEI'));
-      if (cabe) {
+      const valoresAtuais = new Date().getFullYear() === ANO_VALORES;
+      if (cabe && !valoresAtuais) {
+        // valores do ano desatualizados: não mostra número, a DC informa
+        mei.classList.add('sim-personalizado');
+        mei.append(el('strong', 'sim-valor', 'Consulte o valor atual'));
+        mei.append(el('small', null, 'O DAS do MEI é reajustado todo ano com o salário mínimo'));
+      } else if (cabe) {
         mei.append(el('strong', 'sim-valor', reais(dasMEI(ativ === 'servicos' || ativ === 'comercio_servicos', ativ !== 'servicos', false)) + '/mês'));
         mei.append(el('small', null, anual > LIMITE_MEI * 0.9
           ? '⚠ Perto do limite de R$ 81 mil/ano'
-          : 'Valor fixo do DAS em 2026, se sua atividade for permitida no MEI'));
+          : `Valor fixo do DAS em ${ANO_VALORES}, se sua atividade for permitida no MEI`));
       } else {
         mei.classList.add('sim-fora');
         mei.append(el('strong', 'sim-valor', 'Acima do limite'));
@@ -318,10 +383,19 @@
   const feriados = new Set();
   const anosCarregados = new Set();
 
+  // Feriados móveis nacionais (Carnaval, Sexta-feira Santa, Corpus Christi), pelo cálculo da Páscoa
+  function moveis(ano) {
+    const a = ano % 19, b = Math.floor(ano / 100), c = ano % 100, d = Math.floor(b / 4), e = b % 4;
+    const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const mes = Math.floor((h + l - 7 * m + 114) / 31) - 1, dia = ((h + l - 7 * m + 114) % 31) + 1;
+    return [-48, -47, -2, 60].map((n) => chave(new Date(ano, mes, dia + n)));
+  }
+
   const chave = (d) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const ehUtil = (d) => d.getDay() !== 0 && d.getDay() !== 6 && !feriados.has(chave(d)) &&
-    !(!anosCarregados.has(d.getFullYear()) && FIXOS.includes(chave(d).slice(5)));
+    !(!anosCarregados.has(d.getFullYear()) && (FIXOS.includes(chave(d).slice(5)) || moveis(d.getFullYear()).includes(chave(d))));
 
   function ajustar(d, modo) {
     const n = new Date(d);
