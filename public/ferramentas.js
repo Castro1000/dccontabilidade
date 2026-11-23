@@ -115,6 +115,84 @@
     alvo.append(cta);
   }
 
+  // Fontes gratuitas com dados públicos da Receita. Se uma estiver fora ou limitando, tenta a próxima.
+  // Cada uma é convertida para o mesmo formato (o da Minha Receita / BrasilAPI).
+  const sitMaiuscula = (s) => (s ? String(s).toUpperCase() : null);
+  const simNao = (v) => (v == null ? null : v === true || String(v).toLowerCase() === 'sim');
+  const FONTES_CNPJ = [
+    { url: (c) => `https://minhareceita.org/${c}`, converter: (d) => d },
+    {
+      url: (c) => `https://open.cnpja.com/office/${c}`,
+      converter: (d) => ({
+        cnpj: d.taxId,
+        razao_social: d.company && d.company.name,
+        nome_fantasia: d.alias,
+        descricao_situacao_cadastral: sitMaiuscula(d.status && d.status.text),
+        data_situacao_cadastral: d.statusDate,
+        data_inicio_atividade: d.founded,
+        cnae_fiscal: d.mainActivity && d.mainActivity.id,
+        cnae_fiscal_descricao: d.mainActivity && d.mainActivity.text,
+        opcao_pelo_mei: d.company && d.company.simei ? d.company.simei.optant : null,
+        opcao_pelo_simples: d.company && d.company.simples ? d.company.simples.optant : null,
+        porte: d.company && d.company.size && d.company.size.text,
+        municipio: d.address && d.address.city,
+        uf: d.address && d.address.state,
+      }),
+    },
+    {
+      url: (c) => `https://publica.cnpj.ws/cnpj/${c}`,
+      converter: (d) => {
+        const e = d.estabelecimento || {};
+        const at = e.atividade_principal || {};
+        return {
+          cnpj: e.cnpj,
+          razao_social: d.razao_social,
+          nome_fantasia: e.nome_fantasia,
+          descricao_situacao_cadastral: sitMaiuscula(e.situacao_cadastral),
+          data_situacao_cadastral: e.data_situacao_cadastral,
+          data_inicio_atividade: e.data_inicio_atividade,
+          cnae_fiscal: at.id,
+          cnae_fiscal_descricao: at.descricao,
+          opcao_pelo_mei: d.simples ? simNao(d.simples.mei) : null,
+          opcao_pelo_simples: d.simples ? simNao(d.simples.simples) : null,
+          porte: d.porte && d.porte.descricao,
+          municipio: e.cidade && e.cidade.nome,
+          uf: e.estado && e.estado.sigla,
+        };
+      },
+    },
+    { url: (c) => `${API}/cnpj/v1/${c}`, converter: (d) => d },
+  ];
+
+  async function consultarCNPJ(cnpj) {
+    let naoEncontrado = false;
+    for (const fonte of FONTES_CNPJ) {
+      try {
+        const r = await buscarJSON(fonte.url(cnpj), 8000);
+        if (r.ok && r.corpo) {
+          const dados = fonte.converter(r.corpo);
+          if (dados && dados.razao_social) return { dados };
+        }
+        if (r.status === 404 || r.status === 400) naoEncontrado = true;
+      } catch { /* tenta a próxima fonte */ }
+    }
+    if (naoEncontrado) return { dados: null };
+    throw new Error('fontes indisponíveis');
+  }
+
+  // Sem resultado: nunca deixa o visitante sem saída — leva para o WhatsApp da DC
+  function semResposta(alvo, cnpj, texto) {
+    alvo.replaceChildren();
+    const box = el('div', 'cnpj-cta cnpj-cta-alerta');
+    box.append(el('p', null, texto + ' A DC consulta para você e já explica a situação da empresa.'));
+    const a = el('a', 'btn btn-marrom btn-sm', 'Consultar com a DC pelo WhatsApp');
+    a.href = linkWhats(`Olá! Tentei consultar o CNPJ ${formatarCNPJ(cnpj)} no site. Podem verificar a situação para mim?`);
+    a.target = '_blank';
+    a.rel = 'noopener';
+    box.append(a);
+    alvo.append(box);
+  }
+
   const formCNPJ = document.getElementById('form-cnpj');
   if (formCNPJ) {
     const campo = formCNPJ.querySelector('input');
@@ -142,16 +220,11 @@
       msg.textContent = '';
       res.replaceChildren();
       try {
-        const r = await buscarJSON(`${API}/cnpj/v1/${cnpj}`);
-        if (r.ok && r.corpo) {
-          mostrarCNPJ(res, r.corpo);
-        } else if (r.status === 404 || r.status === 400) {
-          msg.textContent = 'CNPJ não encontrado na base da Receita.';
-        } else {
-          throw new Error('indisponível');
-        }
+        const r = await consultarCNPJ(cnpj);
+        if (r.dados) mostrarCNPJ(res, r.dados);
+        else semResposta(res, cnpj, 'Não encontramos esse CNPJ na base da Receita.');
       } catch {
-        msg.textContent = 'A consulta está lenta ou fora do ar agora. Tente de novo em instantes ou fale com a gente no WhatsApp.';
+        semResposta(res, cnpj, 'A consulta da Receita está instável agora.');
       } finally {
         botao.disabled = false;
         botao.textContent = 'Consultar';

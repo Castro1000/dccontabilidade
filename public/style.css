@@ -258,6 +258,7 @@ a { color: inherit; }
 .cnpj-cta { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--areia); font-size: .88rem; color: var(--texto-suave); }
 .cnpj-cta p { margin-bottom: .7rem; }
 .cnpj-cta-alerta p { color: #9b231b; font-weight: 500; }
+.cnpj-resultado > .cnpj-cta:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 
 .prazos { list-style: none; display: grid; gap: .6rem; }
 .prazo { display: flex; align-items: center; gap: 1rem; padding: .75rem 1rem; background: #fff; border-radius: 12px; border-left: 3px solid var(--areia); }
