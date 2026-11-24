@@ -373,6 +373,110 @@
     formSim.addEventListener('submit', (e) => { e.preventDefault(); calcular(); });
   }
 
+  /* ================= O QUE SIGNIFICA MEU CNAE? (consulta oficial no IBGE, só por código) ================= */
+  // Busca por palavra foi descartada: o IBGE usa linguagem técnica e a busca levava a atividades erradas.
+
+  const fraseIBGE = (t) => { const x = (t || '').trim().toLocaleLowerCase('pt-BR'); return x.charAt(0).toLocaleUpperCase('pt-BR') + x.slice(1); };
+  const formatarCNAE = (n) => n.replace(/^(\d{4})(\d)(\d{0,2}).*/, (m, a, b, c) => `${a}-${b}${c ? '/' + c : ''}`);
+
+  // "Esta subclasse compreende - ... - ..." → itens, separando o que inclui do que não inclui
+  function lerObservacoes(obs) {
+    const inclui = [];
+    const exclui = [];
+    (obs || []).forEach((texto) => {
+      const nao = /n[ãa]o\s+compreende/i.test(texto);
+      const itens = texto.replace(/\r/g, '').replace(/^.*?compreende(\s+também)?\s*:?/i, '')
+        .split(/\n\s*-\s*|^\s*-\s*/).map((i) => i.trim()).filter(Boolean)
+        .map((i) => i.charAt(0).toLocaleUpperCase('pt-BR') + i.slice(1));
+      (nao ? exclui : inclui).push(...itens);
+    });
+    return { inclui, exclui };
+  }
+
+  const formCNAE = document.getElementById('form-cnae');
+  if (formCNAE) {
+    const campo = formCNAE.querySelector('input');
+    const botao = formCNAE.querySelector('button');
+    const msg = document.getElementById('cnae-msg');
+    const saida = document.getElementById('cnae-resultado');
+
+    const ctaCNAE = (texto, mensagem) => {
+      const cta = el('div', 'sim-destaque');
+      cta.append(el('p', null, texto));
+      const a = el('a', 'btn btn-ouro btn-sm', 'Falar com a DC sobre meu CNAE');
+      a.href = linkWhats(mensagem);
+      a.target = '_blank';
+      a.rel = 'noopener';
+      cta.append(a);
+      return cta;
+    };
+
+    function mostrarCNAE(d, codigo) {
+      saida.replaceChildren();
+      const sec = d.classe && d.classe.grupo && d.classe.grupo.divisao && d.classe.grupo.divisao.secao;
+      const topo = el('div', 'cnae-item');
+      topo.append(el('strong', 'cnae-codigo', codigo), el('span', 'cnae-desc', fraseIBGE(d.descricao)));
+      if (sec) topo.append(el('small', null, 'Seção ' + sec.id + ' – ' + fraseIBGE(sec.descricao)));
+      saida.append(topo);
+
+      const { inclui, exclui } = lerObservacoes(d.observacoes);
+      const bloco = (titulo, itens, classe) => {
+        if (!itens.length) return;
+        const box = el('div', 'cnae-obs ' + classe);
+        box.append(el('span', 'sim-rotulo', titulo));
+        const ul = el('ul');
+        itens.forEach((i) => ul.append(el('li', null, i)));
+        box.append(ul);
+        saida.append(box);
+      };
+      bloco('O que inclui', inclui, 'cnae-inclui');
+      bloco('O que NÃO inclui', exclui, 'cnae-exclui');
+
+      saida.append(ctaCNAE('Esse é mesmo o CNAE certo para o que você faz? A DC confere e ajusta o cadastro da sua empresa.',
+        `Olá! Consultei o CNAE ${codigo} (${fraseIBGE(d.descricao)}) no site. Quero confirmar se é o certo para a minha empresa.`));
+    }
+
+    campo.addEventListener('input', () => {
+      campo.value = formatarCNAE(campo.value.replace(/\D/g, '').slice(0, 7));
+      campo.classList.remove('erro');
+      msg.textContent = '';
+    });
+
+    formCNAE.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const n = campo.value.replace(/\D/g, '');
+      if (n.length !== 7) {
+        campo.classList.add('erro');
+        msg.textContent = 'Digite os 7 números do código (ex.: 4721-1/02).';
+        campo.focus();
+        return;
+      }
+      const codigo = formatarCNAE(n);
+      botao.disabled = true;
+      botao.textContent = 'Consultando…';
+      msg.textContent = '';
+      saida.replaceChildren();
+      try {
+        const r = await buscarJSON(`https://servicodados.ibge.gov.br/api/v2/cnae/subclasses/${n}`, 12000);
+        const d = Array.isArray(r.corpo) ? r.corpo[0] : r.corpo;
+        if (r.ok && d && d.descricao) {
+          mostrarCNAE(d, codigo);
+        } else if (r.ok || r.status === 404) {
+          saida.append(ctaCNAE(`O código ${codigo} não existe na tabela oficial do IBGE. A DC identifica o CNAE certo para a sua atividade.`,
+            `Olá! Pesquisei o CNAE ${codigo} no site e ele não foi encontrado. Podem me ajudar a achar o código certo?`));
+        } else {
+          throw new Error('IBGE indisponível');
+        }
+      } catch {
+        saida.append(ctaCNAE('A consulta do IBGE está instável agora. A DC confere o seu CNAE para você.',
+          `Olá! Quero saber o que significa o CNAE ${codigo} e se é o certo para a minha empresa.`));
+      } finally {
+        botao.disabled = false;
+        botao.textContent = 'Consultar';
+      }
+    });
+  }
+
   /* ================= CALENDÁRIO DE PRAZOS ================= */
 
   const lista = document.getElementById('prazos-lista');

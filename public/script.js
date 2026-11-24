@@ -46,6 +46,35 @@ form.addEventListener('submit', (e) => {
   window.open(`https://wa.me/${WHATS}?text=${encodeURIComponent(linhas.join('\n'))}`, '_blank', 'noopener');
 });
 
+// CEP preenche a cidade (ViaCEP; BrasilAPI como reserva)
+const campoCEP = form.elements.cep;
+const msgCEP = document.getElementById('cep-msg');
+let cepConsultado = '';
+async function buscarCEP(cep) {
+  const fontes = [
+    async () => { const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`); const d = await r.json(); return d && !d.erro && d.localidade ? `${d.localidade} – ${d.uf}` : null; },
+    async () => { const r = await fetch(`https://brasilapi.com.br/api/cep/v2/${cep}`); if (!r.ok) return null; const d = await r.json(); return d.city ? `${d.city} – ${d.state}` : null; },
+  ];
+  for (const f of fontes) {
+    try { const cidade = await f(); if (cidade) return cidade; } catch { /* tenta a próxima */ }
+  }
+  return null;
+}
+if (campoCEP) {
+  campoCEP.addEventListener('input', async () => {
+    const n = campoCEP.value.replace(/\D/g, '').slice(0, 8);
+    campoCEP.value = n.length > 5 ? `${n.slice(0, 5)}-${n.slice(5)}` : n;
+    msgCEP.textContent = '';
+    if (n.length !== 8 || n === cepConsultado) return;
+    cepConsultado = n;
+    msgCEP.textContent = 'Buscando cidade…';
+    const cidade = await buscarCEP(n);
+    if (campoCEP.value.replace(/\D/g, '') !== n) return; // CEP mudou enquanto buscava
+    if (cidade) { form.elements.cidade.value = cidade; msgCEP.textContent = ''; }
+    else { msgCEP.textContent = 'CEP não encontrado. Digite a cidade, por favor.'; cepConsultado = ''; }
+  });
+}
+
 // Ano no rodapé
 document.getElementById('ano').textContent = new Date().getFullYear();
 
