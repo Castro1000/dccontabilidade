@@ -458,3 +458,16 @@ a { color: inherit; }
   .form-linha { grid-template-columns: 1fr; gap: 0; }
   .mapa-rota { width: 100%; }
 }
+
+/* Botão "x" para limpar o CNPJ */
+.campo-limpar { position: relative; flex: 1; min-width: 0; display: flex; }
+.campo-limpar input { padding-right: 2.8rem; }
+.btn-limpar {
+  position: absolute; right: .55rem; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; padding: 0;
+  background: var(--areia); color: var(--marrom-800); font-size: 1.2rem; line-height: 1;
+  transition: background .2s, color .2s;
+}
+.btn-limpar:hover, .btn-limpar:focus-visible { background: var(--marrom-800); color: var(--creme); outline: none; }
+.btn-limpar[hidden] { display: none; }

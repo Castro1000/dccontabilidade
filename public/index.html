@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css?v=63">
+  <link rel="stylesheet" href="/style.css?v=64">
 
   <script type="application/ld+json">
   {
@@ -346,7 +346,10 @@
           <form class="cnpj-form" id="form-cnpj" novalidate>
             <label class="cnpj-rotulo" for="cnpj-campo">CNPJ</label>
             <div class="cnpj-linha">
-              <input id="cnpj-campo" type="text" placeholder="00.000.000/0000-00" maxlength="18" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="cnpj-msg">
+              <div class="campo-limpar">
+                <input id="cnpj-campo" type="text" placeholder="00.000.000/0000-00" maxlength="18" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="cnpj-msg">
+                <button type="button" class="btn-limpar" aria-label="Limpar CNPJ" title="Limpar" hidden>&times;</button>
+              </div>
               <button type="submit" class="btn btn-marrom">Consultar</button>
             </div>
             <p class="cnpj-msg" id="cnpj-msg" role="alert"></p>
@@ -524,6 +527,6 @@
 </a>
 
 <script src="/script.js?v=10" defer></script>
-<script src="/ferramentas.js?v=10" defer></script>
+<script src="/ferramentas.js?v=11" defer></script>
 </body>
 </html>

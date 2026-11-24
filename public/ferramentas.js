@@ -254,14 +254,25 @@
   const formCNPJ = document.getElementById('form-cnpj');
   if (formCNPJ) {
     const campo = formCNPJ.querySelector('input');
-    const botao = formCNPJ.querySelector('button');
+    const botao = formCNPJ.querySelector('button[type="submit"]');
+    const limpar = formCNPJ.querySelector('.btn-limpar');
     const msg = document.getElementById('cnpj-msg');
     const res = document.getElementById('cnpj-resultado');
 
     campo.addEventListener('input', () => {
       campo.value = formatarCNPJ(limparCNPJ(campo.value));
+      limpar.hidden = !campo.value;
       campo.classList.remove('erro');
       msg.textContent = '';
+    });
+
+    limpar.addEventListener('click', () => {
+      campo.value = '';
+      campo.classList.remove('erro');
+      msg.textContent = '';
+      res.replaceChildren();
+      limpar.hidden = true;
+      campo.focus();
     });
 
     formCNPJ.addEventListener('submit', async (e) => {
